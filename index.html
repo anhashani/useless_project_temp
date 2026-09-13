@@ -1,1 +1,2236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExcuseGen — AI-Powered Explanation & Excuse Generator</title>
+    <meta name="description" content="Generate realistic, harmless, and context-tailored explanations and excuses for college, work, friends, and events with OpenAI. Includes history, analytics, and tone calibration.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0d14;
+            --bg-surface: rgba(18, 24, 38, 0.75);
+            --bg-surface-hover: rgba(28, 36, 56, 0.85);
+            --bg-card: rgba(24, 32, 50, 0.65);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(129, 140, 248, 0.5);
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-glow: rgba(99, 102, 241, 0.35);
+            --accent: #a855f7;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-faint: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-glow: 0 0 35px rgba(99, 102, 241, 0.2);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.5;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(217, 70, 239, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.06) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Fixed / Sticky Navigation Bar */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 13, 20, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            width: 100%;
+        }
+
+        .nav-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            background: var(--accent-gradient);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.75rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: #ffffff;
+        }
+
+        .nav-cta {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #ffffff;
+            padding: 0.45rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-cta:hover {
+            background: var(--primary);
+            border-color: var(--primary-light);
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 4rem;
+            width: 100%;
+        }
+
+        /* Hero / Front Page Section */
+        .hero-section {
+            text-align: center;
+            padding: 3rem 1rem 4rem;
+            position: relative;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: var(--primary-light);
+            padding: 0.35rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.825rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .sparkle-icon {
+            font-size: 0.9rem;
+        }
+
+        h1.hero-title {
+            font-size: clamp(2.4rem, 5.5vw, 3.8rem);
+            font-weight: 800;
+            letter-spacing: -0.035em;
+            line-height: 1.15;
+            background: linear-gradient(180deg, #ffffff 30%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.25rem;
+            max-width: 820px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-subtitle {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            max-width: 640px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 0.85rem 1.75rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+            transition: var(--transition);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.5);
+            filter: brightness(1.08);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.85rem 1.5rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Metric Counters Row */
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem;
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .hero-stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1rem;
+            backdrop-filter: blur(12px);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .hero-stat-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .hero-stat-number {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(135deg, #ffffff 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+            font-weight: 500;
+        }
+
+        /* Features Overview Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+            margin-top: 3.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.75rem;
+            text-align: left;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            border-color: var(--border-active);
+            background: var(--bg-surface-hover);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 1.75rem;
+            margin-bottom: 0.85rem;
+            display: inline-block;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* Section Headings */
+        .section-anchor {
+            padding-top: 5rem;
+            margin-top: -3rem;
+        }
+
+        .section-header-block {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            font-size: 0.975rem;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+
+        /* Generator Glass Card */
+        .glass-card {
+            background: var(--bg-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 2.25rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), var(--shadow-glow);
+            position: relative;
+        }
+
+        .section-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.65rem;
+        }
+
+        .section-label {
+            font-weight: 700;
+            font-size: 0.925rem;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-step {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary-light);
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .char-counter {
+            font-size: 0.8rem;
+            color: var(--text-faint);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Textarea input */
+        .textarea-wrapper {
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 110px;
+            background: rgba(10, 14, 24, 0.7);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.975rem;
+            line-height: 1.6;
+            resize: vertical;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+            background: rgba(12, 17, 29, 0.9);
+        }
+
+        textarea::placeholder {
+            color: #475569;
+        }
+
+        /* Quick Suggestions */
+        .quick-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.65rem;
+            align-items: center;
+        }
+
+        .quick-label {
+            font-size: 0.8rem;
+            color: var(--text-faint);
+            font-weight: 500;
+        }
+
+        .quick-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.775rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quick-btn:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary-light);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        /* Interactive Grid Pills */
+        .pill-grid {
+            display: grid;
+            gap: 0.65rem;
+        }
+
+        .category-grid {
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        }
+
+        .tone-grid {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        }
+
+        .creativity-grid {
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        }
+
+        .pill-option {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .pill-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .pill-card {
+            display: flex;
+            flex-direction: column;
+            padding: 0.75rem 0.9rem;
+            background: rgba(15, 21, 36, 0.7);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            user-select: none;
+            height: 100%;
+        }
+
+        .pill-card:hover {
+            background: var(--bg-surface-hover);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .pill-option input[type="radio"]:checked + .pill-card {
+            background: rgba(99, 102, 241, 0.14);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 16px rgba(99, 102, 241, 0.25);
+        }
+
+        .pill-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #f1f5f9;
+        }
+
+        .pill-icon {
+            font-size: 1.1rem;
+        }
+
+        .pill-desc {
+            font-size: 0.75rem;
+            color: var(--text-faint);
+            margin-top: 0.25rem;
+            line-height: 1.35;
+        }
+
+        .pill-option input[type="radio"]:checked + .pill-card .pill-desc {
+            color: var(--text-muted);
+        }
+
+        /* Action Button */
+        .submit-container {
+            margin-top: 2rem;
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: var(--accent-gradient);
+            border: none;
+            border-radius: var(--radius-md);
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-generate:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(99, 102, 241, 0.45);
+            filter: brightness(1.08);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Alert / Error Banner */
+        .alert {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            font-size: 0.925rem;
+            align-items: flex-start;
+            gap: 0.75rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .alert-icon {
+            font-size: 1.15rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .alert-content strong {
+            display: block;
+            color: #fee2e2;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Result Display Card */
+        .result-container {
+            margin-top: 2rem;
+            display: none;
+            animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card {
+            background: linear-gradient(145deg, rgba(26, 35, 58, 0.9), rgba(18, 25, 42, 0.95));
+            border: 1px solid rgba(129, 140, 248, 0.35);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 25px rgba(99, 102, 241, 0.2);
+            position: relative;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .result-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .tag-category {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary-light);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .excuse-text {
+            font-size: 1.25rem;
+            font-weight: 500;
+            line-height: 1.7;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.01em;
+            word-break: break-word;
+        }
+
+        .result-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-copy {
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #ffffff;
+            border-radius: var(--radius-md);
+            padding: 0.65rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn-copy:hover {
+            background: rgba(99, 102, 241, 0.35);
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        .btn-copy.copied {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.5);
+            color: #a7f3d0;
+        }
+
+        /* History Section Styles */
+        .history-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .history-count {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .btn-clear-history {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 0.4rem 0.85rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-clear-history:hover {
+            background: rgba(239, 68, 68, 0.22);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .history-item-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .history-item-card:hover {
+            border-color: rgba(99, 102, 241, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .history-time {
+            font-size: 0.775rem;
+            color: var(--text-faint);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .history-situation {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .history-excuse-body {
+            font-size: 1.05rem;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .history-item-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .btn-mini {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.775rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .btn-mini:hover {
+            background: rgba(99, 102, 241, 0.2);
+            color: #ffffff;
+            border-color: var(--primary-light);
+        }
+
+        .btn-mini.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .history-empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: var(--bg-surface);
+            border: 1px dashed var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+        }
+
+        .history-empty-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Analytics Section Styles */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .analytics-stat-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analytics-stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-gradient);
+            opacity: 0.7;
+        }
+
+        .stat-val-large {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.1;
+        }
+
+        .stat-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-sub {
+            font-size: 0.75rem;
+            color: var(--text-faint);
+            margin-top: 0.25rem;
+        }
+
+        .analytics-charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+        }
+
+        .chart-header {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .bars-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .bar-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .bar-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .bar-track {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: var(--accent-gradient);
+            border-radius: 9999px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .safety-banner {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: #a7f3d0;
+            font-size: 0.925rem;
+        }
+
+        .safety-icon {
+            font-size: 1.75rem;
+            flex-shrink: 0;
+        }
+
+        /* About Section Styles */
+        .about-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .about-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .about-card:hover {
+            border-color: var(--border-active);
+            transform: translateY(-2px);
+        }
+
+        .about-badge {
+            align-self: flex-start;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary-light);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            text-transform: uppercase;
+        }
+
+        .about-heading {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .about-body {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        /* Modern Footer */
+        footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border-subtle);
+            background: rgba(10, 13, 20, 0.9);
+            padding: 3rem 1.5rem 2rem;
+        }
+
+        .footer-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .footer-logo {
+            font-weight: 800;
+            color: #ffffff;
+            font-size: 1.15rem;
+        }
+
+        .footer-desc {
+            font-size: 0.8rem;
+            color: var(--text-faint);
+            max-width: 320px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: #ffffff;
+        }
+
+        .footer-bottom {
+            max-width: 1000px;
+            margin: 2rem auto 0;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.775rem;
+            color: var(--text-faint);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .container {
+                padding: 1.5rem 1rem 3rem;
+            }
+            .glass-card {
+                padding: 1.5rem;
+            }
+            .category-grid, .tone-grid, .creativity-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .excuse-text {
+                font-size: 1.1rem;
+            }
+            .analytics-charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-brand">
+                <span class="nav-logo-icon">✨</span>
+                <span>ExcuseGen</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#generator" class="nav-link">Generator</a></li>
+                <li><a href="#history" class="nav-link">History</a></li>
+                <li><a href="#analytics" class="nav-link">Analytics</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+            </ul>
+            <a href="#generator" class="nav-cta">⚡ Generate</a>
+        </div>
+    </nav>
+
+    <!-- Hero / Front Page Section -->
+    <section class="hero-section" id="home">
+        <div class="badge-pill">
+            <span class="sparkle-icon">🚀</span>
+            <span>TinkerHub Useless Projects 2026 Edition</span>
+        </div>
+        <h1 class="hero-title">The AI That Gets You Out of Trouble, Diplomatically.</h1>
+        <p class="hero-subtitle">
+            Running late? Staring blankly at an unanswered message? ExcuseGen crafts harmless, believable, and context-tailored explanations for college, work, friends, and events in seconds.
+        </p>
+
+        <div class="hero-actions">
+            <a href="#generator" class="btn-primary">
+                <span>Start Generating</span>
+                <span>✨</span>
+            </a>
+            <a href="#analytics" class="btn-secondary">
+                <span>View Analytics</span>
+                <span>📊</span>
+            </a>
+        </div>
+
+        <!-- Live Metric Counters Row -->
+        <div class="hero-stats">
+            <div class="hero-stat-card">
+                <div class="hero-stat-number" id="hero-stat-total">0</div>
+                <div class="hero-stat-label">Excuses Generated</div>
+            </div>
+            <div class="hero-stat-card">
+                <div class="hero-stat-number">100%</div>
+                <div class="hero-stat-label">Harmless & Ethical</div>
+            </div>
+            <div class="hero-stat-card">
+                <div class="hero-stat-number">6</div>
+                <div class="hero-stat-label">Life Categories</div>
+            </div>
+            <div class="hero-stat-card">
+                <div class="hero-stat-number">5</div>
+                <div class="hero-stat-label">Calibrated Tones</div>
+            </div>
+        </div>
+
+        <!-- 3 Feature Highlight Cards -->
+        <div class="feature-grid container" style="padding-top: 0; padding-bottom: 0;">
+            <div class="feature-card">
+                <span class="feature-icon">🎯</span>
+                <h3 class="feature-title">Context-Aware Reasoning</h3>
+                <p class="feature-desc">Adapts seamlessly whether you are addressing a university professor, a project manager, close family, or friends.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">⚖️</span>
+                <h3 class="feature-title">Precision Tone Calibration</h3>
+                <p class="feature-desc">Fine-tune between Formal, Casual, Friendly, Funny, and Professional to strike the exact right social frequency.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🛡️</span>
+                <h3 class="feature-title">Strict Ethical Guardrails</h3>
+                <p class="feature-desc">Zero fabrication of medical crises, hospitalizations, or dangerous events. 100% focused on plausible everyday hiccups.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <div class="container">
+
+        <!-- Generator Section -->
+        <section id="generator" class="section-anchor">
+            <div class="section-header-block">
+                <h2 class="section-title">✨ Excuse Generator</h2>
+                <p class="section-desc">Describe your situation, pick your audience and tone, and let AI compose the perfect diplomatic response.</p>
+            </div>
+
+            <div class="glass-card">
+                <form id="excuse-form" method="POST" action="{% url 'home' %}">
+                    {% csrf_token %}
+
+                    <!-- Step 1: Situation Input -->
+                    <div class="section-group">
+                        <div class="section-header">
+                            <label for="situation-input" class="section-label">
+                                <span class="section-step">1</span>
+                                <span>The Situation</span>
+                            </label>
+                            <span class="char-counter" id="char-counter">0 / 500</span>
+                        </div>
+                        <div class="textarea-wrapper">
+                            <textarea 
+                                id="situation-input" 
+                                name="situation" 
+                                rows="3" 
+                                maxlength="500" 
+                                placeholder="Describe what happened (e.g. My alarm didn't ring, I got caught behind a delivery truck, or I had an unexpected family errand)..." 
+                                required>{{ situation|default:'' }}</textarea>
+                        </div>
+                        <div class="quick-suggestions">
+                            <span class="quick-label">Suggestions:</span>
+                            <button type="button" class="quick-btn" data-text="Stuck in unexpected highway traffic due to sudden road maintenance.">🚗 Traffic Delay</button>
+                            <button type="button" class="quick-btn" data-text="My Wi-Fi router crashed right before our scheduled sync.">💻 Router Glitch</button>
+                            <button type="button" class="quick-btn" data-text="An urgent domestic chore came up that I had to resolve immediately.">🏡 Domestic Chore</button>
+                            <button type="button" class="quick-btn" data-text="My laptop battery drained completely and took time to reboot.">⚡ Low Battery</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Category Selector -->
+                    <div class="section-group">
+                        <div class="section-header">
+                            <label class="section-label">
+                                <span class="section-step">2</span>
+                                <span>Select Category</span>
+                            </label>
+                        </div>
+                        <div class="pill-grid category-grid" id="category-group">
+                            <label class="pill-option" id="cat-opt-college">
+                                <input type="radio" name="category" value="College" {% if selected_category == 'College' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">🎓</span>
+                                        <span>College</span>
+                                    </div>
+                                    <span class="pill-desc">Classes & professors</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="cat-opt-work">
+                                <input type="radio" name="category" value="Work" {% if selected_category == 'Work' or not selected_category %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">💼</span>
+                                        <span>Work</span>
+                                    </div>
+                                    <span class="pill-desc">Boss & colleagues</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="cat-opt-friends">
+                                <input type="radio" name="category" value="Friends" {% if selected_category == 'Friends' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">👥</span>
+                                        <span>Friends</span>
+                                    </div>
+                                    <span class="pill-desc">Plans & hangouts</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="cat-opt-family">
+                                <input type="radio" name="category" value="Family" {% if selected_category == 'Family' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">🏡</span>
+                                        <span>Family</span>
+                                    </div>
+                                    <span class="pill-desc">Home & gatherings</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="cat-opt-event">
+                                <input type="radio" name="category" value="Event" {% if selected_category == 'Event' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">🎟️</span>
+                                        <span>Event</span>
+                                    </div>
+                                    <span class="pill-desc">Parties & meetups</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="cat-opt-late">
+                                <input type="radio" name="category" value="Being Late" {% if selected_category == 'Being Late' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">⏰</span>
+                                        <span>Being Late</span>
+                                    </div>
+                                    <span class="pill-desc">Transit & timing</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Tone Selector -->
+                    <div class="section-group">
+                        <div class="section-header">
+                            <label class="section-label">
+                                <span class="section-step">3</span>
+                                <span>Select Tone</span>
+                            </label>
+                        </div>
+                        <div class="pill-grid tone-grid" id="tone-group">
+                            <label class="pill-option" id="tone-opt-formal">
+                                <input type="radio" name="tone" value="Formal" {% if selected_tone == 'Formal' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">🎩</span>
+                                        <span>Formal</span>
+                                    </div>
+                                    <span class="pill-desc">Polite & dignified</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="tone-opt-casual">
+                                <input type="radio" name="tone" value="Casual" {% if selected_tone == 'Casual' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">💬</span>
+                                        <span>Casual</span>
+                                    </div>
+                                    <span class="pill-desc">Relaxed text format</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="tone-opt-friendly">
+                                <input type="radio" name="tone" value="Friendly" {% if selected_tone == 'Friendly' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">🤝</span>
+                                        <span>Friendly</span>
+                                    </div>
+                                    <span class="pill-desc">Warm & considerate</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="tone-opt-funny">
+                                <input type="radio" name="tone" value="Funny" {% if selected_tone == 'Funny' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">😄</span>
+                                        <span>Funny</span>
+                                    </div>
+                                    <span class="pill-desc">Witty & lighthearted</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="tone-opt-professional">
+                                <input type="radio" name="tone" value="Professional" {% if selected_tone == 'Professional' or not selected_tone %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">📊</span>
+                                        <span>Professional</span>
+                                    </div>
+                                    <span class="pill-desc">Clean & polished</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Creativity Selector -->
+                    <div class="section-group">
+                        <div class="section-header">
+                            <label class="section-label">
+                                <span class="section-step">4</span>
+                                <span>Creativity Level</span>
+                            </label>
+                        </div>
+                        <div class="pill-grid creativity-grid" id="creativity-group">
+                            <label class="pill-option" id="creativity-opt-safe">
+                                <input type="radio" name="creativity" value="Safe" {% if selected_creativity == 'Safe' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">🛡️</span>
+                                        <span>Safe</span>
+                                    </div>
+                                    <span class="pill-desc">Plausible, low-risk & simple</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="creativity-opt-normal">
+                                <input type="radio" name="creativity" value="Normal" {% if selected_creativity == 'Normal' or not selected_creativity %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">⚖️</span>
+                                        <span>Normal</span>
+                                    </div>
+                                    <span class="pill-desc">Realistic everyday balance</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="creativity-opt-creative">
+                                <input type="radio" name="creativity" value="Creative" {% if selected_creativity == 'Creative' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">🎨</span>
+                                        <span>Creative</span>
+                                    </div>
+                                    <span class="pill-desc">Inventive & unique angle</span>
+                                </div>
+                            </label>
+
+                            <label class="pill-option" id="creativity-opt-dramatic">
+                                <input type="radio" name="creativity" value="Dramatic" {% if selected_creativity == 'Dramatic' %}checked{% endif %}>
+                                <div class="pill-card">
+                                    <div class="pill-header">
+                                        <span class="pill-icon">🎭</span>
+                                        <span>Dramatic</span>
+                                    </div>
+                                    <span class="pill-desc">Urgent everyday chaos</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="submit-container">
+                        <button type="submit" id="generate-btn" class="btn-generate">
+                            <span class="btn-text">Generate Excuse</span>
+                            <span class="spinner" id="btn-spinner"></span>
+                        </button>
+                    </div>
+
+                    <!-- Error Alert -->
+                    <div id="error-alert" class="alert" {% if error %}style="display: flex;"{% endif %}>
+                        <span class="alert-icon">⚠️</span>
+                        <div class="alert-content">
+                            <strong>Notice</strong>
+                            <span id="error-text">{{ error }}</span>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Result Card -->
+                <div id="result-container" class="result-container" {% if excuse %}style="display: block;"{% endif %}>
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-meta">
+                                <span class="tag tag-category" id="tag-category">{{ selected_category|default:'Work' }}</span>
+                                <span class="tag" id="tag-tone">{{ selected_tone|default:'Professional' }}</span>
+                                <span class="tag" id="tag-creativity">{{ selected_creativity|default:'Normal' }}</span>
+                            </div>
+                            <span class="badge-pill" style="margin: 0; padding: 0.25rem 0.75rem;">Ready to send</span>
+                        </div>
+                        <p class="excuse-text" id="excuse-output">{{ excuse|default:'' }}</p>
+                        <div class="result-actions">
+                            <button type="button" id="copy-btn" class="btn-copy">
+                                <span id="copy-icon">📋</span>
+                                <span id="copy-text">Copy</span>
+                            </button>
+                            <button type="button" id="regenerate-btn" class="btn-copy">
+                                <span id="regenerate-icon">🔄</span>
+                                <span id="regenerate-text">Generate Again</span>
+                            </button>
+                            <button type="button" id="improve-btn" class="btn-copy">
+                                <span id="improve-icon">✨</span>
+                                <span id="improve-text">Make Better</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="section-anchor">
+            <div class="section-header-block">
+                <h2 class="section-title">📜 Generation History</h2>
+                <p class="section-desc">Quickly browse, re-copy, or manage your previously crafted excuses saved locally.</p>
+            </div>
+
+            <div class="history-controls">
+                <span class="history-count" id="history-count-badge">0 saved excuses</span>
+                <button type="button" id="clear-history-btn" class="btn-clear-history">Clear History</button>
+            </div>
+
+            <div class="history-list" id="history-items-container">
+                <!-- Dynamically populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="section-anchor">
+            <div class="section-header-block">
+                <h2 class="section-title">📊 Analytics & Insights</h2>
+                <p class="section-desc">Live metrics tracking your generation activity, favorite contexts, and time saved.</p>
+            </div>
+
+            <!-- Top Metric Boxes -->
+            <div class="analytics-grid">
+                <div class="analytics-stat-box">
+                    <div class="stat-val-large" id="stat-total-excuses">0</div>
+                    <div class="stat-title">Total Excuses Generated</div>
+                    <div class="stat-sub">Across all categories</div>
+                </div>
+                <div class="analytics-stat-box">
+                    <div class="stat-val-large" id="stat-top-category" style="font-size: 1.6rem;">Work</div>
+                    <div class="stat-title">Most Used Category</div>
+                    <div class="stat-sub">Your primary hurdle</div>
+                </div>
+                <div class="analytics-stat-box">
+                    <div class="stat-val-large" id="stat-top-tone" style="font-size: 1.6rem;">Professional</div>
+                    <div class="stat-title">Preferred Tone</div>
+                    <div class="stat-sub">Your go-to diplomatic vibe</div>
+                </div>
+                <div class="analytics-stat-box">
+                    <div class="stat-val-large" id="stat-time-saved">0m</div>
+                    <div class="stat-title">Overthinking Spared</div>
+                    <div class="stat-sub">Est. ~3 mins per draft</div>
+                </div>
+            </div>
+
+            <!-- Distribution Charts Grid -->
+            <div class="analytics-charts-grid">
+                <!-- Category Breakdown -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span>Category Breakdown</span>
+                        <span class="tag">6 Contexts</span>
+                    </div>
+                    <div class="bars-container" id="category-bars-container">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Tone Breakdown -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span>Tone Distribution</span>
+                        <span class="tag">5 Tones</span>
+                    </div>
+                    <div class="bars-container" id="tone-bars-container">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Safety & Ethical Badge -->
+            <div class="safety-banner">
+                <span class="safety-icon">🛡️</span>
+                <div>
+                    <strong>100% Ethical Guardrail Adherence</strong>
+                    <div style="font-size: 0.825rem; opacity: 0.9; margin-top: 0.2rem;">
+                        ExcuseGen algorithmically prevents false medical or legal claims, focusing purely on accountable, realistic everyday communication.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section-anchor">
+            <div class="section-header-block">
+                <h2 class="section-title">ℹ️ About ExcuseGen</h2>
+                <p class="section-desc">The concept, ethics, and modern tech stack behind the solution.</p>
+            </div>
+
+            <div class="about-cards-grid">
+                <div class="about-card">
+                    <span class="about-badge">Origin</span>
+                    <h3 class="about-heading">TinkerHub Useless Projects</h3>
+                    <p class="about-body">
+                        Born at TinkerHub Useless Projects, ExcuseGen playfully solves a relatable universal friction: the paralysis of staring at an unanswered message while running 15 minutes late.
+                    </p>
+                </div>
+
+                <div class="about-card">
+                    <span class="about-badge">Safety</span>
+                    <h3 class="about-heading">Harmless by Design</h3>
+                    <p class="about-body">
+                        We believe in harmless accountability. ExcuseGen strictly forbids fabricating serious illnesses, hospitalizations, deaths, accidents, or crimes, favoring genuine logistical hurdles and polite apologies.
+                    </p>
+                </div>
+
+                <div class="about-card">
+                    <span class="about-badge">Technology</span>
+                    <h3 class="about-heading">Modern Django & AI</h3>
+                    <p class="about-body">
+                        Built on Django 6.0 with the official OpenAI Python SDK (Responses API), featuring client-side localStorage privacy, CSRF token preservation, and vanilla modern CSS with zero bloated frameworks.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Modern Comprehensive Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="footer-logo">ExcuseGen ✨</div>
+                <p class="footer-desc">AI-powered diplomatic explanations for everyday moments. Keep it harmless, believable, and fun.</p>
+            </div>
+            <ul class="footer-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#generator">Generator</a></li>
+                <li><a href="#history">History</a></li>
+                <li><a href="#analytics">Analytics</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ExcuseGen • TinkerHub Useless Projects Edition.</p>
+            <p>Crafted with Python, Django, and the OpenAI Responses API.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('excuse-form');
+            const situationInput = document.getElementById('situation-input');
+            const charCounter = document.getElementById('char-counter');
+            const generateBtn = document.getElementById('generate-btn');
+            const btnText = generateBtn.querySelector('.btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+            const errorAlert = document.getElementById('error-alert');
+            const errorText = document.getElementById('error-text');
+            const resultContainer = document.getElementById('result-container');
+            const excuseOutput = document.getElementById('excuse-output');
+            const tagCategory = document.getElementById('tag-category');
+            const tagTone = document.getElementById('tag-tone');
+            const tagCreativity = document.getElementById('tag-creativity');
+            const copyBtn = document.getElementById('copy-btn');
+            const copyText = document.getElementById('copy-text');
+            const copyIcon = document.getElementById('copy-icon');
+            const regenerateBtn = document.getElementById('regenerate-btn');
+            const regenerateText = document.getElementById('regenerate-text');
+            const regenerateIcon = document.getElementById('regenerate-icon');
+            const improveBtn = document.getElementById('improve-btn');
+            const improveText = document.getElementById('improve-text');
+            const improveIcon = document.getElementById('improve-icon');
+
+            // History & Analytics elements
+            const historyContainer = document.getElementById('history-items-container');
+            const historyCountBadge = document.getElementById('history-count-badge');
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            const statTotalExcuses = document.getElementById('stat-total-excuses');
+            const heroStatTotal = document.getElementById('hero-stat-total');
+            const statTopCategory = document.getElementById('stat-top-category');
+            const statTopTone = document.getElementById('stat-top-tone');
+            const statTimeSaved = document.getElementById('stat-time-saved');
+            const categoryBarsContainer = document.getElementById('category-bars-container');
+            const toneBarsContainer = document.getElementById('tone-bars-container');
+
+            const STORAGE_KEY = 'excusegen_records_v1';
+            let isProcessing = false;
+
+            // --- History & Analytics State Management ---
+            function loadHistory() {
+                try {
+                    const data = localStorage.getItem(STORAGE_KEY);
+                    if (data) {
+                        return JSON.parse(data);
+                    }
+                } catch (e) {}
+
+                // Default initial samples if empty to give user a rich first impression
+                const initialSamples = [
+                    {
+                        id: 'sample-1',
+                        timestamp: Date.now() - 1000 * 60 * 18,
+                        situation: 'Stuck in unexpected traffic on the bypass road.',
+                        category: 'Being Late',
+                        tone: 'Professional',
+                        creativity: 'Normal',
+                        excuse: 'Please accept my apologies for the delay. An unexpected traffic standstill on my route held me up, but I have cleared the bottleneck and am proceeding now.'
+                    },
+                    {
+                        id: 'sample-2',
+                        timestamp: Date.now() - 1000 * 60 * 75,
+                        situation: 'Laptop battery drained right before class submission.',
+                        category: 'College',
+                        tone: 'Formal',
+                        creativity: 'Safe',
+                        excuse: 'I am writing to formally communicate an unavoidable delay regarding my assignment. A sudden hardware shutdown occurred, but my device has rebooted and I am turning it in now.'
+                    }
+                ];
+                saveHistory(initialSamples);
+                return initialSamples;
+            }
+
+            function saveHistory(list) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+                } catch (e) {}
+            }
+
+            function addExcuseToHistory(item) {
+                const list = loadHistory();
+                list.unshift(item);
+                if (list.length > 50) list.pop();
+                saveHistory(list);
+                renderHistory();
+                renderAnalytics();
+            }
+
+            function formatTimeAgo(timestamp) {
+                const diffSec = Math.floor((Date.now() - timestamp) / 1000);
+                if (diffSec < 60) return 'Just now';
+                const diffMin = Math.floor(diffSec / 60);
+                if (diffMin < 60) return `${diffMin}m ago`;
+                const diffHour = Math.floor(diffMin / 60);
+                if (diffHour < 24) return `${diffHour}h ago`;
+                return `${Math.floor(diffHour / 24)}d ago`;
+            }
+
+            function renderHistory() {
+                const list = loadHistory();
+                historyCountBadge.textContent = `${list.length} saved excuse${list.length === 1 ? '' : 's'}`;
+
+                if (list.length === 0) {
+                    historyContainer.innerHTML = `
+                        <div class="history-empty-state">
+                            <div class="history-empty-icon">📭</div>
+                            <strong>No saved excuses yet</strong>
+                            <p style="font-size: 0.85rem; margin-top: 0.35rem;">Generate an excuse above and it will automatically appear here!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                historyContainer.innerHTML = list.map(item => `
+                    <div class="history-item-card" data-id="${item.id}">
+                        <div class="history-item-header">
+                            <div class="result-meta">
+                                <span class="tag tag-category">${escapeHtml(item.category)}</span>
+                                <span class="tag">${escapeHtml(item.tone)}</span>
+                                <span class="tag">${escapeHtml(item.creativity)}</span>
+                            </div>
+                            <span class="history-time">${formatTimeAgo(item.timestamp)}</span>
+                        </div>
+                        <div class="history-situation">Situation: "${escapeHtml(item.situation)}"</div>
+                        <div class="history-excuse-body">${escapeHtml(item.excuse)}</div>
+                        <div class="history-item-actions">
+                            <button type="button" class="btn-mini btn-copy-history" data-text="${escapeHtml(item.excuse)}">
+                                <span>📋</span>
+                                <span>Copy</span>
+                            </button>
+                            <button type="button" class="btn-mini danger btn-delete-history" data-id="${item.id}">
+                                <span>🗑️</span>
+                                <span>Remove</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Bind copy & delete buttons in history
+                historyContainer.querySelectorAll('.btn-copy-history').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const text = btn.dataset.text;
+                        await copyTextToClipboard(text);
+                        const origHtml = btn.innerHTML;
+                        btn.innerHTML = '<span>✓</span><span>Copied!</span>';
+                        btn.style.color = '#a7f3d0';
+                        setTimeout(() => {
+                            btn.innerHTML = origHtml;
+                            btn.style.color = '';
+                        }, 1800);
+                    });
+                });
+
+                historyContainer.querySelectorAll('.btn-delete-history').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.dataset.id;
+                        let list = loadHistory();
+                        list = list.filter(item => item.id !== id);
+                        saveHistory(list);
+                        renderHistory();
+                        renderAnalytics();
+                    });
+                });
+            }
+
+            function renderAnalytics() {
+                const list = loadHistory();
+                const total = list.length;
+
+                statTotalExcuses.textContent = total;
+                heroStatTotal.textContent = total;
+
+                // Time saved (est 3 mins per generated excuse)
+                const totalMinutes = total * 3;
+                if (totalMinutes < 60) {
+                    statTimeSaved.textContent = `${totalMinutes}m`;
+                } else {
+                    statTimeSaved.textContent = `${(totalMinutes / 60).toFixed(1)}h`;
+                }
+
+                if (total === 0) {
+                    statTopCategory.textContent = 'None';
+                    statTopTone.textContent = 'None';
+                    categoryBarsContainer.innerHTML = '<div style="color: var(--text-faint); font-size: 0.85rem;">No data yet.</div>';
+                    toneBarsContainer.innerHTML = '<div style="color: var(--text-faint); font-size: 0.85rem;">No data yet.</div>';
+                    return;
+                }
+
+                // Count categories
+                const catCounts = { 'Work': 0, 'Being Late': 0, 'College': 0, 'Friends': 0, 'Family': 0, 'Event': 0 };
+                const toneCounts = { 'Professional': 0, 'Casual': 0, 'Formal': 0, 'Friendly': 0, 'Funny': 0 };
+
+                list.forEach(item => {
+                    if (catCounts.hasOwnProperty(item.category)) catCounts[item.category]++;
+                    if (toneCounts.hasOwnProperty(item.tone)) toneCounts[item.tone]++;
+                });
+
+                // Top Category
+                let maxCat = 'Work';
+                let maxCatCount = -1;
+                for (const [cat, count] of Object.entries(catCounts)) {
+                    if (count > maxCatCount) {
+                        maxCatCount = count;
+                        maxCat = cat;
+                    }
+                }
+                statTopCategory.textContent = maxCat;
+
+                // Top Tone
+                let maxTone = 'Professional';
+                let maxToneCount = -1;
+                for (const [tone, count] of Object.entries(toneCounts)) {
+                    if (count > maxToneCount) {
+                        maxToneCount = count;
+                        maxTone = tone;
+                    }
+                }
+                statTopTone.textContent = maxTone;
+
+                // Render category bars
+                categoryBarsContainer.innerHTML = Object.entries(catCounts).map(([cat, count]) => {
+                    const pct = Math.round((count / total) * 100);
+                    return `
+                        <div class="bar-row">
+                            <div class="bar-meta">
+                                <span>${cat}</span>
+                                <span>${count} (${pct}%)</span>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="width: ${pct}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Render tone bars
+                toneBarsContainer.innerHTML = Object.entries(toneCounts).map(([tone, count]) => {
+                    const pct = Math.round((count / total) * 100);
+                    return `
+                        <div class="bar-row">
+                            <div class="bar-meta">
+                                <span>${tone}</span>
+                                <span>${count} (${pct}%)</span>
+                            </div>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="width: ${pct}%;"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            clearHistoryBtn.addEventListener('click', () => {
+                if (confirm('Clear all saved excuses from your history?')) {
+                    saveHistory([]);
+                    renderHistory();
+                    renderAnalytics();
+                }
+            });
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            async function copyTextToClipboard(text) {
+                if (!text) return;
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch (err) {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                }
+            }
+
+            // Character counter
+            function updateCharCount() {
+                const len = situationInput.value.length;
+                charCounter.textContent = `${len} / 500`;
+            }
+            situationInput.addEventListener('input', updateCharCount);
+            updateCharCount();
+
+            // Quick suggestions
+            document.querySelectorAll('.quick-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    situationInput.value = btn.dataset.text;
+                    updateCharCount();
+                    situationInput.focus();
+                });
+            });
+
+            // Copy main button
+            copyBtn.addEventListener('click', async () => {
+                const text = excuseOutput.textContent.trim();
+                if (!text) return;
+                await copyTextToClipboard(text);
+                copyBtn.classList.add('copied');
+                copyText.textContent = 'Copied! ✨';
+                copyIcon.textContent = '✓';
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyText.textContent = 'Copy';
+                    copyIcon.textContent = '📋';
+                }, 2000);
+            });
+
+            function getCsrfToken() {
+                const csrfTokenEl = form.querySelector('input[name="csrfmiddlewaretoken"]');
+                return csrfTokenEl ? csrfTokenEl.value : '';
+            }
+
+            function getSelectedValues() {
+                const categoryEl = form.querySelector('input[name="category"]:checked');
+                const toneEl = form.querySelector('input[name="tone"]:checked');
+                const creativityEl = form.querySelector('input[name="creativity"]:checked');
+                return {
+                    category: categoryEl ? categoryEl.value : 'Work',
+                    tone: toneEl ? toneEl.value : 'Professional',
+                    creativity: creativityEl ? creativityEl.value : 'Normal',
+                };
+            }
+
+            function setGlobalLoading(loading, activeAction = 'generate') {
+                isProcessing = loading;
+                generateBtn.disabled = loading;
+                copyBtn.disabled = loading;
+                regenerateBtn.disabled = loading;
+                improveBtn.disabled = loading;
+
+                if (loading) {
+                    if (activeAction === 'regenerate') {
+                        regenerateText.textContent = 'Regenerating...';
+                        regenerateIcon.textContent = '⏳';
+                    } else if (activeAction === 'improve') {
+                        improveText.textContent = 'Polishing...';
+                        improveIcon.textContent = '⏳';
+                    } else {
+                        btnText.textContent = 'Crafting Excuse...';
+                        btnSpinner.style.display = 'inline-block';
+                    }
+                } else {
+                    btnText.textContent = 'Generate Excuse';
+                    btnSpinner.style.display = 'none';
+                    regenerateText.textContent = 'Generate Again';
+                    regenerateIcon.textContent = '🔄';
+                    if (!improveBtn.classList.contains('copied')) {
+                        improveText.textContent = 'Make Better';
+                        improveIcon.textContent = '✨';
+                    }
+                }
+            }
+
+            function showError(msg) {
+                errorText.textContent = msg;
+                errorAlert.style.display = 'flex';
+                errorAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            function hideError() {
+                errorAlert.style.display = 'none';
+                errorText.textContent = '';
+            }
+
+            // Main form submission (Generate)
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (isProcessing) return;
+
+                const situation = situationInput.value.trim();
+                if (!situation) {
+                    showError("Please enter a situation for your excuse.");
+                    situationInput.focus();
+                    return;
+                }
+
+                if (situation.length > 500) {
+                    showError("The situation description is too long. Please keep it under 500 characters.");
+                    return;
+                }
+
+                const { category, tone, creativity } = getSelectedValues();
+                setGlobalLoading(true, 'generate');
+                hideError();
+
+                try {
+                    const response = await fetch(form.action || window.location.href, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken(),
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({
+                            action: 'generate',
+                            situation,
+                            category,
+                            tone,
+                            creativity,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        excuseOutput.textContent = data.excuse;
+                        tagCategory.textContent = data.category;
+                        tagTone.textContent = data.tone;
+                        tagCreativity.textContent = data.creativity;
+                        resultContainer.style.display = 'block';
+                        resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                        // Add to history & update analytics
+                        addExcuseToHistory({
+                            id: 'excuse-' + Date.now(),
+                            timestamp: Date.now(),
+                            situation,
+                            category: data.category,
+                            tone: data.tone,
+                            creativity: data.creativity,
+                            excuse: data.excuse,
+                        });
+                    } else {
+                        showError(data.error || "Could not generate an excuse. Please try again.");
+                    }
+                } catch (err) {
+                    showError("Unable to reach the server. Please verify your connection and try again.");
+                } finally {
+                    setGlobalLoading(false);
+                }
+            });
+
+            // Generate Again action
+            regenerateBtn.addEventListener('click', async () => {
+                if (isProcessing) return;
+
+                const situation = situationInput.value.trim();
+                if (!situation) {
+                    showError("Please enter a situation first.");
+                    return;
+                }
+
+                const { category, tone, creativity } = getSelectedValues();
+                const previousExcuse = excuseOutput.textContent.trim();
+
+                setGlobalLoading(true, 'regenerate');
+                hideError();
+
+                try {
+                    const response = await fetch(form.action || window.location.href, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken(),
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({
+                            action: 'generate',
+                            situation,
+                            category,
+                            tone,
+                            creativity,
+                            previous_excuse: previousExcuse,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        excuseOutput.style.transition = 'opacity 0.15s ease';
+                        excuseOutput.style.opacity = '0.3';
+                        setTimeout(() => {
+                            excuseOutput.textContent = data.excuse;
+                            excuseOutput.style.opacity = '1';
+                        }, 120);
+
+                        tagCategory.textContent = data.category;
+                        tagTone.textContent = data.tone;
+                        tagCreativity.textContent = data.creativity;
+                        resultContainer.style.display = 'block';
+
+                        // Add regenerated version to history
+                        addExcuseToHistory({
+                            id: 'excuse-' + Date.now(),
+                            timestamp: Date.now(),
+                            situation,
+                            category: data.category,
+                            tone: data.tone,
+                            creativity: data.creativity,
+                            excuse: data.excuse,
+                        });
+                    } else {
+                        showError(data.error || "Could not regenerate excuse. Please try again.");
+                    }
+                } catch (err) {
+                    showError("Unable to reach the server. Please verify your connection and try again.");
+                } finally {
+                    setGlobalLoading(false);
+                }
+            });
+
+            // Make Better action
+            improveBtn.addEventListener('click', async () => {
+                if (isProcessing) return;
+
+                const currentExcuse = excuseOutput.textContent.trim();
+                if (!currentExcuse) {
+                    showError("No generated excuse found to improve.");
+                    return;
+                }
+
+                const { category, tone } = getSelectedValues();
+                setGlobalLoading(true, 'improve');
+                hideError();
+
+                try {
+                    const response = await fetch(form.action || window.location.href, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCsrfToken(),
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({
+                            action: 'improve',
+                            excuse: currentExcuse,
+                            category,
+                            tone,
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        excuseOutput.style.transition = 'opacity 0.15s ease';
+                        excuseOutput.style.opacity = '0.3';
+                        setTimeout(() => {
+                            excuseOutput.textContent = data.excuse;
+                            excuseOutput.style.opacity = '1';
+                        }, 120);
+
+                        improveBtn.classList.add('copied');
+                        improveText.textContent = 'Polished! ✨';
+                        improveIcon.textContent = '✓';
+                        setTimeout(() => {
+                            improveBtn.classList.remove('copied');
+                            improveText.textContent = 'Make Better';
+                            improveIcon.textContent = '✨';
+                        }, 1800);
+                        resultContainer.style.display = 'block';
+
+                        // Save polished version to history
+                        addExcuseToHistory({
+                            id: 'excuse-' + Date.now(),
+                            timestamp: Date.now(),
+                            situation: situationInput.value.trim() || 'Refined excuse',
+                            category,
+                            tone,
+                            creativity: 'Polished',
+                            excuse: data.excuse,
+                        });
+                    } else {
+                        showError(data.error || "Could not improve excuse. Please try again.");
+                    }
+                } catch (err) {
+                    showError("Unable to reach the server. Please verify your connection and try again.");
+                } finally {
+                    setGlobalLoading(false);
+                }
+            });
+
+            // Initial render of History and Analytics
+            renderHistory();
+            renderAnalytics();
+        });
+    </script>
+</body>
+</html>
