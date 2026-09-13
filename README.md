@@ -15,9 +15,8 @@
 ### Team Name: Error 404: Motivation Not Found
 
 ### Team Members
-- **Team Lead:** Anhashani
-- **Member 2:** [Team Member 2]
-- **Member 3:** [Team Member 3]
+- **Team Lead:** Anha fathima shani
+- **Member 2:** Vineetta ws
 
 ---
 
@@ -204,7 +203,8 @@ The repository includes a ready-to-deploy `vercel.json` configuration:
 ---
 
 ## Team Contributions
-- **Anhashani**: Full-stack architecture, Django backend setup, OpenAI Responses API integration, smart fallback generation engine, dynamic multi-section UI implementation, testing, and deployment pipeline.
+- **Anha fathima shani**: Full-stack architecture, Django backend setup, OpenAI Responses API integration, smart fallback generation engine, dynamic multi-section UI implementation, testing, and deployment pipeline.
+- **Vineetta ws**: Project ideation, UX flow & design system, excuse prompt calibration & category testing, documentation, and quality assurance.
 
 ---
 
