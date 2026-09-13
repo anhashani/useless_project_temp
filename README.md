@@ -12,7 +12,7 @@
 ---
 
 ## Basic Details
-### Team Name: Error 404: Motivation Not Found
+### Team Name: ExcuseGen
 
 ### Team Members
 - **Team Lead:** Anha fathima shani
