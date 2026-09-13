@@ -184,11 +184,32 @@ System check identified no issues (0 silenced).
 ### 1. Front Page & Hero Section
 *Showcasing dynamic counters, instant call-to-action buttons, and value propositions.*
 
+![Front Page & Hero Section](assets/hero-section.png)
+
 ### 2. Core Excuse Generator & Action Bar
 *Featuring prompt input, quick suggestion pills, category & tone selectors, and immediate generation with Copy, Regenerate, and Make Better controls.*
 
+![Core Generator & Generated Excuse](assets/generator-interface.png)
+
 ### 3. Generation History & Analytics Dashboard
 *Demonstrating client-persisted historical excuses, individual deletion, and live distribution progress bars tracking categories and tone frequency.*
+
+![Analytics Dashboard & History](assets/analytics-dashboard.png)
+
+### 4. About & Ethics Section
+*Detailing the project origin, TinkerHub Useless Projects initiative, safety pledge, and technology stack.*
+
+![About & Ethics Pledge](assets/about-section.png)
+
+---
+
+## Project Demo Video & Walkthrough
+
+### Interactive Walkthrough Animation
+
+![ExcuseGen Live Demo Walkthrough](assets/demo-walkthrough.webp)
+
+*Full recorded end-to-end user experience demonstrating smooth-scrolling navigation, instant excuse generation, clipboard copy feedback, dynamic history persistence, and live dashboard analytics recalculation.*
 
 ---
 
